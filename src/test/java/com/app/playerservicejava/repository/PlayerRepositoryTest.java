@@ -29,7 +29,11 @@ class PlayerRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        playerRepository.deleteAll();
+        // Bulk DELETE in one statement. The table is seeded from Player.csv (~19k rows)
+        // by schema.sql on context startup; deleteAll() would load every row and fire one
+        // DELETE per row before each test, making this class take minutes. deleteAllInBatch()
+        // issues a single "DELETE FROM players".
+        playerRepository.deleteAllInBatch();
 
         // IDs are auto-generated (UUID) — capture after save
         player1 = new Player();

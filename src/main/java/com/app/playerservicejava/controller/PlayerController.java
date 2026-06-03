@@ -30,8 +30,8 @@ public class PlayerController {
     public ResponseEntity<PlayersResponse> getPlayers(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String after,
-            @RequestParam() int size) {
-        size = size == 0 ? playerProperties.getPageLimit() : size;
+            @RequestParam(required = false) Integer size) {
+        size = size == null ? playerProperties.getPageLimit() : size;
         PaginationRequest request = new PaginationRequest(page, after, size);
         return ResponseEntity.ok(playerService.getPlayers(request));
     }

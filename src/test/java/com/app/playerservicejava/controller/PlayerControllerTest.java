@@ -95,12 +95,15 @@ class PlayerControllerTest {
     }
 
     @Test
-    void getPlayers_missingSizeParam_returns500() throws Exception {
-        // MissingServletRequestParameterException is caught by the generic Exception handler
-        // in GlobalExceptionHandler (which doesn't extend ResponseEntityExceptionHandler),
-        // so it returns 500 instead of 400.
+    void getPlayers_missingSizeParam_usesDefaultReturnsOk() throws Exception {
+        // size is optional; when omitted the controller falls back to the configured
+        // page limit, so the request is valid and returns 200.
+        when(playerProperties.getPageLimit()).thenReturn(20);
+        when(playerService.getPlayers(any())).thenReturn(buildPlayersResponse(false));
+
         mockMvc.perform(get("/v1/players"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.players[0].playerId").value("p1"));
     }
 
     // ── GET /v1/players/{id} ─────────────────────────────────────────────────

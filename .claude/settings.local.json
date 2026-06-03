@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn -q clean compile)",
+      "Bash(echo \"RESULT=$?\")",
+      "Bash(./mvnw -q clean compile)"
+    ]
+  }
+}
