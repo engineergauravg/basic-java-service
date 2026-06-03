@@ -1,91 +1,120 @@
-# ⚾ Player Service
+# Player Service
 
-Player Service is a backend application that serves baseball player data. In addition, Player service integrates with [Ollama](https://github.com/ollama/ollama/blob/main/docs/api.md), which allows us to run the [tinyllama LLM]((https://ollama.com/library/tinyllama)) locally.
+A Spring Boot REST API that serves historical baseball player data, with pagination, caching, and LLM-powered chat capabilities via [Ollama](https://github.com/ollama/ollama).
 
-## Dependencies
+## Tech Stack
 
-- [Java 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
-- [maven.apache.org](https://maven.apache.org/install.html)
-- Spring Boot 3.3.4 (with Spring Web MVC, Spring Data JPA)
-- [H2 Database](https://www.h2database.com/html/main.html)
-- [Docker](https://www.docker.com/) or [Podman](https://podman.io/)
+| Layer | Technology |
+|-------|-----------|
+| Language | Java 17 |
+| Framework | Spring Boot 3.3.4 |
+| Persistence | Spring Data JPA + H2 (in-memory) |
+| Caching | Caffeine (max 1000 entries, 10 min TTL) |
+| Mapping | MapStruct 1.5.5 |
+| LLM | Ollama4J 1.1.7 (llama3.2 default) |
+| Build | Maven |
 
-## 🛠️ Setup Instructions
+## Prerequisites
 
-1. Verify system dependencies
-   1. Java 17
-      - Verify installation: `java -version`
-   2. Maven
-      - Download and install from [maven.apache.org](https://maven.apache.org/install.html)
-      - Verify installation, run: `mvn --version`
-      - Verify java version linked to maven is Java 17 `Java version: 17.x.x`
-   3. Container Manager
-      - Download and install from [docker.com](https://www.docker.com/)(recommended) or [podman](https://podman.io/) (alternative)
-      - Verify installation, run: `docker --version` for docker
+- Java 17 — verify with `java -version`
+- Maven — verify with `mvn --version`
+- Docker (for Ollama LLM integration)
 
-2. Clone this repository or Download the code as zip
-   - run `git clone https://github.com/Intuit-A4A/backend-java-player-service.git`
+## Getting Started
 
-## Run the application
+### 1. Install dependencies
 
-### Part 1: Application Dependencies
+```shell
+mvn clean install -DskipTests
+```
 
-1. Install application dependencies
-    - From the project's root directory, run: `mvn clean install -DskipTests`
+### 2. Run the service
 
-### Part 2: Run Player Service (without LLM)
+```shell
+mvn spring-boot:run
+```
 
-1. Start the Player service
+The service starts on `http://localhost:8080`.
 
-   ```shell
-   mvn spring-boot:run
-   ```
+### 3. Verify
 
-2. Verify the Player service is running
-      1. Open your browser and visit `http://localhost:8080/v1/players`
-      2. If the application is running successfully, you will see player data appear in the browser
+```shell
+curl http://localhost:8080/v1/players?size=10
+```
 
-### Part 3: Start LLM Docker Container
+## API Endpoints
 
-Player service integrates with Ollama 🦙, which allows us to run LLMs locally. This app runs [tinyllama](https://ollama.com/library/tinyllama) model.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/v1/players?size={n}&page={n}&after={id}` | List players with pagination |
+| GET | `/v1/players/{id}` | Get player by ID |
+| POST | `/v1/players` | Create a player |
+| PUT | `/v1/players/{id}` | Update a player |
 
-- [Ollama API documentation](https://github.com/ollama/ollama/blob/main/docs/api.md)
-- [Ollama4J SDK](https://ollama4j.github.io/ollama4j/intro)
+### Example Requests
 
-1. Pull and run Ollama docker image and download `tinyllama` model
-   - Pull Ollama docker image
+```shell
+# Get first 10 players
+curl "http://localhost:8080/v1/players?size=10"
 
-    ```shell
-    docker pull ollama/ollama
-    ```
+# Get player by ID
+curl "http://localhost:8080/v1/players/allenga01"
 
-2. Run Ollama docker image on port 11434 as a background process
+# Create a player
+curl -X POST "http://localhost:8080/v1/players" \
+  -H "Content-Type: application/json" \
+  -d '{"playerID":"test001","nameFirst":"John","nameLast":"Doe"}'
 
-    ```shell
-    docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-    ```
+# Update a player
+curl -X PUT "http://localhost:8080/v1/players/test001" \
+  -H "Content-Type: application/json" \
+  -d '{"nameFirst":"Jane"}'
+```
 
-3. Download and run `tinyllama` model
+## LLM Integration (Optional)
 
-    ```shell
-    docker exec -it ollama ollama run tinyllama
-    ```
+The service integrates with Ollama to support AI-powered chat features.
 
-4. Test Ollama API server
+### Start Ollama
 
-    ```curl
-    curl -v --location 'http://localhost:11434/api/generate' --header 'Content-Type: application/json' --data '{"model": "tinyllama","prompt": "why is the sky blue?", "stream": false}'
-    ```
-Having trouble with docker? Try using podman as an alternative. Instructions [here](https://github.com/Intuit-A4A/backend-java-player-service/wiki/Supplemental-Materials:-Set-up-help#alternative-set-up-instructions)
+```shell
+# Pull and run Ollama
+docker pull ollama/ollama
+docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 
+# Pull the default model
+docker exec -it ollama ollama pull llama3.2
+```
 
-### Part 4: Verify Player Service and LLM Integration
+### Verify Ollama is running
 
-1. Ensure Player Service is running from previous instructions. If not:
+```shell
+curl http://localhost:11434/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"model": "llama3.2", "prompt": "Hello", "stream": false}'
+```
 
-    ```shell
-    mvn spring-boot:run
-    ```
+## H2 Console
 
-2. Open your browser and visit `http://localhost:8080/v1/chat/list-models`
-   - If the application is running successfully, you will see a json response that include information about tinyllama
+The in-memory H2 database console is available at `http://localhost:8080/h2-console` while the service is running.
+
+- **JDBC URL:** `jdbc:h2:mem:playerdb`
+- **Username:** `sa`
+- **Password:** _(empty)_
+
+## Configuration
+
+Key properties in `src/main/resources/application.yml`:
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `player.pageLimit` | `10` | Default page size |
+| `chat.default-model` | `llama3.2` | Ollama model to use |
+| `model.server-url` | `http://localhost:5000` | ML model server URL |
+| `server.port` | `8080` | Application port |
+
+## Running Tests
+
+```shell
+mvn test
+```
