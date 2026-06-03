@@ -1,0 +1,25 @@
+# Compiled output
+target/
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Maven wrapper (optional - remove if you want to commit it)
+# .mvn/
+
+# Logs
+*.log
+logs/
+
+# Spring Boot
+*.jar
+*.war
+*.ear

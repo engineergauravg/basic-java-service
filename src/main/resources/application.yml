@@ -1,0 +1,77 @@
+spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+    url: jdbc:h2:mem:playerdb
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  config:
+    use-legacy-processing: true
+  h2:
+    console:
+      enabled: true
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=10m
+
+player:
+  pageLimit: 10
+chat:
+  system-prompt: "You are a baseball player assistant for a sports statistics service. \
+    You have access to a database of historical baseball players. \
+    Answer questions about players, their careers, stats, and history. \
+    Keep responses concise and factual. \
+    If asked something unrelated to baseball, politely decline."
+  summary-system-prompt: "You are a baseball historian. Given structured player data, \
+    write a concise 2-3 sentence career summary in plain English. \
+    Mention full name, birth details, physical attributes, batting and throwing side, \
+    debut year, and final game year. Do not make up any information not provided."
+  comparison-system-prompt: "You are a baseball analyst. Given data for two players, \
+    write a concise comparison in plain English covering their physical attributes, \
+    batting and throwing side, career span, and country of origin. \
+    Highlight key differences and similarities. Do not make up any information not provided."
+  classification-prompt: "Classify this baseball message into exactly one word. Reply with ONLY one of: FIND, FEEDBACK, CHAT. \
+    FIND means user wants to find similar players. \
+    FEEDBACK means user likes or dislikes a player from previous results. \
+    CHAT means anything else. \
+    Examples: find me players like Babe Ruth -> FIND \
+    show similar players to Mickey Mantle -> FIND \
+    I do not like Lou Gehrig -> FEEDBACK \
+    remove Jimmie Foxx -> FEEDBACK \
+    I like Hank Greenberg -> FEEDBACK \
+    hello -> CHAT \
+    what is baseball -> CHAT \
+    Reply with one word only:"
+  find-mode-prompt: "Does this message mention a specific player by name, or describe physical features? \
+    Reply with ONLY one word: NAME or FEATURES. \
+    Examples: find players like Babe Ruth -> NAME \
+    find players similar to Mickey Mantle -> NAME \
+    find tall left-handed players -> FEATURES \
+    find heavy right-handed players born in 1900 -> FEATURES \
+    Reply with one word only:"
+  name-extraction-prompt: "Extract only the baseball player full name from this message. Reply with the name only, nothing else. \
+    Examples: find players like Babe Ruth -> Babe Ruth \
+    I do not like Lou Gehrig -> Lou Gehrig \
+    remove Jimmie Foxx from my team -> Jimmie Foxx \
+    show me players similar to Mickey Mantle -> Mickey Mantle \
+    Reply with the player name only:"
+  narrative-prompt: "You are a baseball analyst. Given a list of similar players found by a similarity model, \
+    write a concise 3-4 sentence narrative explaining the team in plain English. \
+    Mention the players by name, highlight what they have in common, and why they were selected. \
+    Do not make up any information not provided."
+  default-model: llama3.2
+
+model:
+  server-url: http://localhost:5000
+
+server:
+  port: 8080
+  include-debug-info: true
+  error:
+    include-message: always
