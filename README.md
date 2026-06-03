@@ -11,14 +11,12 @@ A Spring Boot REST API that serves historical baseball player data, with paginat
 | Persistence | Spring Data JPA + H2 (in-memory) |
 | Caching | Caffeine (max 1000 entries, 10 min TTL) |
 | Mapping | MapStruct 1.5.5 |
-| LLM | Ollama4J 1.1.7 (llama3.2 default) |
 | Build | Maven |
 
 ## Prerequisites
 
 - Java 17 — verify with `java -version`
 - Maven — verify with `mvn --version`
-- Docker (for Ollama LLM integration)
 
 ## Getting Started
 
@@ -71,29 +69,6 @@ curl -X PUT "http://localhost:8080/v1/players/test001" \
   -d '{"nameFirst":"Jane"}'
 ```
 
-## LLM Integration (Optional)
-
-The service integrates with Ollama to support AI-powered chat features.
-
-### Start Ollama
-
-```shell
-# Pull and run Ollama
-docker pull ollama/ollama
-docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-
-# Pull the default model
-docker exec -it ollama ollama pull llama3.2
-```
-
-### Verify Ollama is running
-
-```shell
-curl http://localhost:11434/api/generate \
-  -H "Content-Type: application/json" \
-  -d '{"model": "llama3.2", "prompt": "Hello", "stream": false}'
-```
-
 ## H2 Console
 
 The in-memory H2 database console is available at `http://localhost:8080/h2-console` while the service is running.
@@ -109,8 +84,6 @@ Key properties in `src/main/resources/application.yml`:
 | Property | Default | Description |
 |----------|---------|-------------|
 | `player.pageLimit` | `10` | Default page size |
-| `chat.default-model` | `llama3.2` | Ollama model to use |
-| `model.server-url` | `http://localhost:5000` | ML model server URL |
 | `server.port` | `8080` | Application port |
 
 ## Running Tests
