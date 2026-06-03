@@ -92,6 +92,14 @@ public class PlayerService {
     }
 
     @CacheEvict(value = "players", key = "#playerId")
+    public void deletePlayer(String playerId) {
+        if (!playerRepository.existsById(playerId)) {
+            throw new PlayerNotFoundException(playerId);
+        }
+        playerRepository.deleteById(playerId);
+    }
+
+    @CacheEvict(value = "players", key = "#playerId")
     public PlayerResponse updatePlayer(String playerId, UpdatePlayerRequest request) {
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new PlayerNotFoundException(playerId));

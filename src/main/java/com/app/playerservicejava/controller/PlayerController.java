@@ -9,6 +9,7 @@ import com.app.playerservicejava.model.PlayersResponse;
 import com.app.playerservicejava.model.UpdatePlayerRequest;
 import com.app.playerservicejava.service.PlayerService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,13 +43,19 @@ public class PlayerController {
     }
 
     @PostMapping
-    public ResponseEntity<PlayerResponse> createPlayer(@RequestBody CreatePlayerRequest request) {
+    public ResponseEntity<PlayerResponse> createPlayer(@Valid @RequestBody CreatePlayerRequest request) {
         return new ResponseEntity<>(playerService.createPlayer(request), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PlayerResponse> updatePlayer(@PathVariable("id") String id,
-                                                       @RequestBody UpdatePlayerRequest request) {
+                                                       @Valid @RequestBody UpdatePlayerRequest request) {
         return ResponseEntity.ok(playerService.updatePlayer(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePlayer(@PathVariable("id") String id) {
+        playerService.deletePlayer(id);
+        return ResponseEntity.noContent().build();
     }
 }

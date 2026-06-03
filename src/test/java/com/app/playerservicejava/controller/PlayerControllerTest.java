@@ -24,6 +24,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -151,6 +153,19 @@ class PlayerControllerTest {
     }
 
     @Test
+    void createPlayer_blankRequiredFields_returns400() throws Exception {
+        CreatePlayerRequest req = new CreatePlayerRequest(
+                "", "", null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+
+        mockMvc.perform(post("/v1/players")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
     void createPlayer_serviceThrows_returns500() throws Exception {
         CreatePlayerRequest req = new CreatePlayerRequest(
                 "John", "Doe", null, null, null, null, null, null, null,
@@ -196,6 +211,25 @@ class PlayerControllerTest {
         mockMvc.perform(put("/v1/players/missing")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("PLAYER_NOT_FOUND"));
+    }
+
+    // ── DELETE /v1/players/{id} ──────────────────────────────────────────────
+
+    @Test
+    void deletePlayer_found_returnsNoContent() throws Exception {
+        doNothing().when(playerService).deletePlayer("p1");
+
+        mockMvc.perform(delete("/v1/players/p1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deletePlayer_notFound_returns404() throws Exception {
+        doThrow(new PlayerNotFoundException("missing")).when(playerService).deletePlayer("missing");
+
+        mockMvc.perform(delete("/v1/players/missing"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("PLAYER_NOT_FOUND"));
     }

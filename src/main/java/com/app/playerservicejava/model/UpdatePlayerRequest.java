@@ -1,7 +1,11 @@
 package com.app.playerservicejava.model;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record UpdatePlayerRequest(
+        @NotBlank(message = "firstName is required")
         String firstName,
+        @NotBlank(message = "lastName is required")
         String lastName,
         String givenName,
         String birthYear,
