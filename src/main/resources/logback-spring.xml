@@ -23,7 +23,7 @@
 
     <!-- local: console, DEBUG for app code -->
     <springProfile name="local">
-        <logger name="com.app.playerservicejava" level="DEBUG"/>
+        <logger name="com.app.basicjavaservice" level="DEBUG"/>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
         </root>
@@ -31,7 +31,7 @@
 
     <!-- prod: file only, WARN for root, INFO for app code -->
     <springProfile name="prod">
-        <logger name="com.app.playerservicejava" level="INFO"/>
+        <logger name="com.app.basicjavaservice" level="INFO"/>
         <root level="WARN">
             <appender-ref ref="FILE"/>
         </root>
